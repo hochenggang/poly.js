@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polygon Points</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #fafafa;
+      color: #1a1a1a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-top: 12px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    button:hover:not(:disabled) {
+      background: #f5f5f5;
+      border-color: #ccc;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    button.primary {
+      background: #1a1a1a;
+      color: #fff;
+      border-color: #1a1a1a;
+    }
+
+    button.primary:hover:not(:disabled) {
+      background: #333;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    label {
+      padding: 10px 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    label:hover {
+      background: #f5f5f5;
+      border-color: #ccc;
+    }
+
+    .workspace {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      background: #fff;
+      line-height: 0;
+    }
+
+    .workspace.empty {
+      width: 800px;
+      height: 450px;
+      border: 2px dashed #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: default;
+    }
+
+    .workspace.empty .icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
+    .workspace.empty span {
+      color: #999;
+      font-size: 14px;
+    }
+
+    #preview {
+      display: block;
+    }
+
+    #svg-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .shape-fill {
+      fill: rgba(59, 130, 246, 0.15);
+      stroke: #3b82f6;
+      stroke-width: 2;
+      pointer-events: all;
+      cursor: pointer;
+    }
+
+    .shape-line {
+      fill: none;
+      stroke: #3b82f6;
+      stroke-width: 2;
+      stroke-dasharray: 6 4;
+    }
+
+    .shape-point {
+      fill: #fff;
+      stroke: #3b82f6;
+      stroke-width: 2.5;
+      pointer-events: all;
+      cursor: pointer;
+      transition: r 0.1s;
+    }
+
+    .shape-point:hover {
+      r: 8;
+    }
+
+    .shape-point-first {
+      fill: #3b82f6;
+    }
+
+    .result-panel {
+      margin-top: 24px;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 800px;
+      display: none;
+    }
+
+    .result-panel.visible {
+      display: block;
+    }
+
+    .result-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 16px;
+    }
+
+    .result-box {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .result-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .result-value {
+      font-family: 'SF Mono', Monaco, 'Consolas', monospace;
+      font-size: 13px;
+      color: #1a1a1a;
+      word-break: break-all;
+    }
+
+    .result-actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .hint {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #999;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+      z-index: 1000;
+    }
+
+    .modal-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      width: 90%;
+      max-width: 540px;
+      position: relative;
+      transform: scale(0.8);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-overlay.visible .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: #f5f5f5;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #666;
+      line-height: 1;
+      transition: background 0.15s;
+      padding: 0;
+    }
+
+    .modal-close:hover {
+      background: #e0e0e0;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 20px;
+      padding-right: 30px;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 12px;
+    }
+
+    .modal-box {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .modal-label {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .modal-value {
+      font-family: 'SF Mono', Monaco, 'Consolas', monospace;
+      font-size: 12px;
+      color: #1a1a1a;
+      word-break: break-all;
+      max-height: 80px;
+      overflow-y: auto;
+    }
+
+    .modal-actions {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    a:any-link,
+    a:hover,
+    a:active,
+    a:focus {
+      text-decoration: none;
+      color: #5495e8;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Polygon Points</h1>
+  <p class="subtitle">点击图片添加点位，围出选区，查看结果</p>
+
+  <div class="toolbar">
+    <label>
+      选择图片
+      <input type="file" id="image-input" accept="image/*">
+    </label>
+    <button id="btn-result" disabled>查看结果</button>
+    <button id="btn-clear" disabled>清空</button>
+  </div>
+
+  <div class="workspace empty" id="workspace">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M3 9h18M9 3v18" />
+    </svg>
+    <span>先选择图片吧</span>
+  </div>
+
+  <div class="hint">
+    长按点位可拖动移动 · 双击点位删除 · 至少3个点后可查看结果
+    <a href="./demo.html">Demo</a>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close">×</button>
+      <div class="modal-title">选区数据</div>
+      <div class="modal-grid">
+        <div class="modal-box">
+          <div class="modal-label">viewBox</div>
+          <div class="modal-value" id="modal-viewbox"></div>
+        </div>
+        <div class="modal-box">
+          <div class="modal-label">points</div>
+          <div class="modal-value" id="modal-points"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="primary" id="btn-copy">复制代码</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const workspace = document.getElementById('workspace');
+    const imageInput = document.getElementById('image-input');
+    const btnResult = document.getElementById('btn-result');
+    const btnClear = document.getElementById('btn-clear');
+    const modal = document.getElementById('modal');
+    const modalClose = document.getElementById('modal-close');
+    const modalViewbox = document.getElementById('modal-viewbox');
+    const modalPoints = document.getElementById('modal-points');
+    const btnCopy = document.getElementById('btn-copy');
+
+    let img = null;
+    let svg = null;
+    let points = [];
+    let vw = 0, vh = 0;
+
+    let dragIndex = -1;
+    let isDragging = false;
+    let pressTimer = null;
+
+    imageInput.addEventListener('change', () => {
+      const file = imageInput.files[0];
+      if (!file) return;
+
+      img = new Image();
+      img.onload = () => {
+        vw = img.naturalWidth;
+        vh = img.naturalHeight;
+
+        const maxW = window.innerWidth * 0.9;
+        const maxH = window.innerHeight * 0.65;
+        const scale = Math.min(maxW / vw, maxH / vh, 1);
+
+        const displayW = Math.round(vw * scale);
+        const displayH = Math.round(vh * scale);
+
+        workspace.innerHTML = '';
+        workspace.classList.remove('empty');
+        workspace.style.width = displayW + 'px';
+        workspace.style.height = displayH + 'px';
+
+        svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('style', 'position:absolute;top:0;left:0;width:100%;height:100%');
+        svg.setAttribute('viewBox', `0 0 ${vw} ${vh}`);
+
+        img.style.display = 'block';
+        img.style.width = displayW + 'px';
+        img.style.height = displayH + 'px';
+
+        workspace.appendChild(img);
+        workspace.appendChild(svg);
+
+        points = [];
+        modal.classList.remove('visible');
+        updateButtons();
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    workspace.addEventListener('click', (e) => {
+      if (isDragging) {
+        isDragging = false;
+        return;
+      }
+      if (e.target === img || e.target === svg || e.target === workspace) {
+        if (!img) return;
+
+        const rect = img.getBoundingClientRect();
+        const scaleX = vw / rect.width;
+        const scaleY = vh / rect.height;
+        const x = Math.round((e.clientX - rect.left) * scaleX);
+        const y = Math.round((e.clientY - rect.top) * scaleY);
+
+        if (x >= 0 && x <= vw && y >= 0 && y <= vh) {
+          points.push({ x, y });
+          render();
+          updateButtons();
+        }
+      }
+    });
+
+    workspace.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      if (e.target.classList.contains('shape-point')) {
+        const idx = parseInt(e.target.getAttribute('data-index'));
+        points.splice(idx, 1);
+        render();
+        updateButtons();
+      }
+    });
+
+    workspace.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('shape-point')) {
+        dragIndex = parseInt(e.target.getAttribute('data-index'));
+        isDragging = false;
+        pressTimer = setTimeout(() => {
+          isDragging = true;
+          e.target.style.cursor = 'grabbing';
+        }, 200);
+      }
+    });
+
+    workspace.addEventListener('mousemove', (e) => {
+      if (dragIndex >= 0 && isDragging) {
+        const rect = img.getBoundingClientRect();
+        const scaleX = vw / rect.width;
+        const scaleY = vh / rect.height;
+        let x = Math.round((e.clientX - rect.left) * scaleX);
+        let y = Math.round((e.clientY - rect.top) * scaleY);
+        x = Math.max(0, Math.min(x, vw));
+        y = Math.max(0, Math.min(y, vh));
+        points[dragIndex] = { x, y };
+        render();
+      }
+    });
+
+    workspace.addEventListener('mouseup', (e) => {
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+      if (dragIndex >= 0) {
+        const circles = svg.querySelectorAll('.shape-point');
+        if (circles[dragIndex]) {
+          circles[dragIndex].style.cursor = '';
+        }
+      }
+      dragIndex = -1;
+      isDragging = false;
+    });
+
+    workspace.addEventListener('mouseleave', () => {
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+      dragIndex = -1;
+      isDragging = false;
+    });
+
+    btnResult.addEventListener('click', () => {
+      if (points.length < 3) return;
+
+      const pointsStr = points.map(p => `${p.x},${p.y}`).join(',');
+      modalViewbox.textContent = `0 0 ${vw} ${vh}`;
+      modalPoints.textContent = pointsStr;
+      modal.classList.add('visible');
+    });
+
+    modalClose.addEventListener('click', () => {
+      modal.classList.remove('visible');
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('visible');
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('visible')) {
+        modal.classList.remove('visible');
+      }
+    });
+
+    btnClear.addEventListener('click', () => {
+      points = [];
+      modal.classList.remove('visible');
+      render();
+      updateButtons();
+    });
+
+    btnCopy.addEventListener('click', () => {
+      const pointsStr = points.map(p => `${p.x},${p.y}`).join(',');
+      const code = `const poly = new PolyClick('#container', '0 0 ${vw} ${vh}');\nconst shape = poly.add('${pointsStr}');`;
+      navigator.clipboard.writeText(code);
+      btnCopy.textContent = '已复制';
+      setTimeout(() => {
+        btnCopy.textContent = '复制代码';
+      }, 1000);
+    });
+
+    function render() {
+      if (!svg) return;
+      svg.innerHTML = '';
+
+      if (points.length < 2) {
+        points.forEach((p, i) => {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', p.x);
+          circle.setAttribute('cy', p.y);
+          circle.setAttribute('r', 6);
+          circle.setAttribute('class', 'shape-point' + (i === 0 ? ' shape-point-first' : ''));
+          circle.setAttribute('data-index', i);
+          svg.appendChild(circle);
+        });
+        return;
+      }
+
+      const linePoints = points.map(p => `${p.x},${p.y}`).join(' ');
+
+      if (points.length >= 3) {
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', linePoints);
+        polygon.setAttribute('class', 'shape-fill');
+        svg.appendChild(polygon);
+      }
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+      line.setAttribute('points', linePoints);
+      line.setAttribute('class', 'shape-line');
+      svg.appendChild(line);
+
+      points.forEach((p, i) => {
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', p.x);
+        circle.setAttribute('cy', p.y);
+        circle.setAttribute('r', 6);
+        circle.setAttribute('class', 'shape-point' + (i === 0 ? ' shape-point-first' : ''));
+        circle.setAttribute('data-index', i);
+        svg.appendChild(circle);
+      });
+    }
+
+    function updateButtons() {
+      const hasImage = !!img && img.src;
+      btnResult.disabled = !hasImage || points.length < 3;
+      btnClear.disabled = !hasImage || points.length === 0;
+    }
+  </script>
+</body>
+
+</html>
