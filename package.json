@@ -1,0 +1,42 @@
+{
+  "name": "poly-click",
+  "version": "1.0.0",
+  "description": "A lightweight JavaScript library for creating clickable polygon areas on image backgrounds using SVG",
+  "main": "dist/poly.umd.cjs",
+  "module": "dist/poly.js",
+  "types": "dist/poly.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/poly.js",
+      "require": "./dist/poly.umd.cjs",
+      "types": "./dist/poly.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc --project tsconfig.declarations.json",
+    "build:esm": "vite build",
+    "build:types": "tsc --project tsconfig.declarations.json",
+    "dev": "vite build --watch",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "polygon",
+    "clickable",
+    "svg",
+    "image-map",
+    "hotspot"
+  ],
+  "author": "hochenggang <imhcg@live.com> (https://www.imhcg.cn)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hochenggang/poly-click.git"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "vite": "^5.0.0"
+  }
+}

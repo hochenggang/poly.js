@@ -33,7 +33,7 @@
       position: relative;
       width: 800px;
       height: 450px;
-      background-image: url('./demo.webp');
+      background-image: url('./demo/demo.webp');
       background-size: cover;
       background-position: center;
       border-radius: 8px;
@@ -140,18 +140,18 @@
 </head>
 
 <body>
-  <h1>Poly.js Demo</h1>
+  <h1>Poly-click Demo</h1>
 
   <div id="polygon-container" class="container"></div>
 
   <div class="footer">
-    <a href="./poly.js">Poly.js</a>
-    <a href="./get_polygon_points.html">Get Poly.js points</a>
+    <a href="https://github.com/hochenggang/poly-click">Poly-click</a>
+    <a href="./demo/get-polygon-points.html">Get-polygon-points</a>
   </div>
 
 
   <script type="module">
-    import PolyClick from './poly.js';
+    import PolyClick from './dist/poly.js';
 
     function toast(msg) {
       let container = document.querySelector('.toast-container');
@@ -176,12 +176,12 @@
     const poly = new PolyClick('#polygon-container', '0 0 2048 1152');
 
     poly.add('960,98,940,110,904,127,875,159,868,197,866,237,891,206,936,179,992,175,1030,188,1074,215,1104,257,1126,293,1151,327,1168,345,1191,306,1188,268,1189,208,1200,183,1207,137,1189,98,1151,83,1128,92,1072,78,1003,85')
-      .click(() => toast('帽子区域被点击了！'))
-      .on('mouseenter', () => toast('鼠标进入帽子区域了！'));
+      .click(() => toast('click 帽子'))
+      .on('mouseenter', () => toast('mouseenter 帽子'));
 
     poly.add('898,251,893,280,873,316,830,358,801,403,783,429,739,461,721,508,732,557,750,606,786,624,806,633,841,564,859,519,853,477,877,445,888,396,929,387,913,353,911,311,911,268,915,228,949,188,972,177,996,177,1014,183,1034,201,1057,237,1079,280,1090,302,1115,298,1121,313,1128,331,1115,360,1086,362,1090,373,1112,374,1121,389,1135,401,1153,414,1173,425,1218,436,1233,421,1253,430,1260,458,1264,472,1271,486,1273,517,1256,566,1253,590,1260,613,1265,628,1278,582,1287,635,1300,591,1318,573,1329,541,1296,497,1262,436,1238,409,1195,364,1151,335,1128,289,1101,257,1066,210,1043,190,978,168,942,170,916,184,882,212,873,235,875,259')
-      .click(() => toast('头发区域被点击了！'))
-      .on('mouseenter', () => toast('鼠标进入头发区域了！'));
+      .click(() => toast('click 头发'))
+      .on('mouseenter', () => toast('mouseenter 头发'));
 
     const toggleVisibility = () => {
       if (poly.isVisible) {
@@ -195,14 +195,21 @@
 
     poly.add('1109,467,1102,526,1083,628,1067,746,1043,835,1050,878,1041,887,1027,847,1020,892,1010,847,998,887,977,882,982,831,961,880,897,856,899,814,878,847,869,842,892,802,892,755,923,656,939,597,954,559,895,561,859,526,850,488,861,453,876,443,880,415,899,396,932,389,970,410,1005,399,1041,387,1067,377,1086,377,1102,377,1128,401,1145,413,1178,427,1180,439')
       .click(() => {
-        toast('围巾区域被点击了！触发 visibility toggle');
+        toast('click 围巾 触发 visibility toggle');
         toggleVisibility();
       })
-      .on('mouseenter', () => toast('鼠标进入围巾区域了！'));
+      .on('mouseenter', () => toast('mouseenter 围巾'));
 
     poly.add('945,335,982,327,1018,337,1008,356,987,369,962,367,951,352')
-      .click(() => toast('嘴巴区域被点击了！'))
-      .on('mouseenter', () => toast('鼠标进入嘴巴区域了！'));
+      .click(() => toast('click 嘴巴'))
+      .on('mouseenter', () => toast('mouseenter 嘴巴'));
+
+    
+    const shapeClothes = poly.add('858,527,845,554,830,596,819,627,806,661,806,690,788,716,772,753,772,785,777,800,754,821,754,845,733,869,730,892,722,916,712,974,717,1005,733,1023,727,1068,733,1107,743,1126,738,1147,1210,1149,1212,1097,1202,1044,1202,1031,1226,1008,1241,981,1270,960,1302,911,1315,861,1307,821,1302,806,1307,771,1291,711,1265,669,1265,635,1249,583,1265,551,1270,517,1270,488,1260,464,1249,430,1223,441,1176,446,1131,467,1113,483,1055,832,1055,895,1005,905,929,892,866,858,887,792,898,727,924,643,945,580,955,559,903,593,893,567');
+    shapeClothes
+    .click(() => toast('click 衣服'))
+    .on('mouseenter', () => toast('mouseenter 衣服'))
+    .on('mouseleave', () => toast('mouseleave 衣服'));
 
     poly.show();
 

@@ -98,6 +98,15 @@
       border-color: #ccc;
     }
 
+    .lang-toggle {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
     .workspace {
       position: relative;
       border-radius: 12px;
@@ -349,16 +358,16 @@
 </head>
 
 <body>
-  <h1>Polygon Points</h1>
-  <p class="subtitle">点击图片添加点位，围出选区，查看结果</p>
+  <h1 data-i18n="title">Polygon Points</h1>
+  <p class="subtitle" data-i18n="subtitle">点击图片添加点位，围出选区，查看结果</p>
 
   <div class="toolbar">
-    <label>
+    <label data-i18n="selectImage">
       选择图片
       <input type="file" id="image-input" accept="image/*">
     </label>
-    <button id="btn-result" disabled>查看结果</button>
-    <button id="btn-clear" disabled>清空</button>
+    <button id="btn-result" disabled data-i18n="viewResult">查看结果</button>
+    <button id="btn-clear" disabled data-i18n="clear">清空</button>
   </div>
 
   <div class="workspace empty" id="workspace">
@@ -366,18 +375,18 @@
       <rect x="3" y="3" width="18" height="18" rx="2" />
       <path d="M3 9h18M9 3v18" />
     </svg>
-    <span>先选择图片吧</span>
+    <span data-i18n="selectImageHint">先选择图片吧</span>
   </div>
 
   <div class="hint">
-    长按点位可拖动移动 · 双击点位删除 · 至少3个点后可查看结果
-    <a href="./index.html">Demo</a>
+    <span data-i18n="hint">长按点位可拖动移动 · 双击点位删除 · 至少3个点后可查看结果</span>
+    <a href="/index.html">Demo</a>
   </div>
 
   <div class="modal-overlay" id="modal">
     <div class="modal-content">
       <button class="modal-close" id="modal-close">×</button>
-      <div class="modal-title">选区数据</div>
+      <div class="modal-title" data-i18n="modalTitle">选区数据</div>
       <div class="modal-grid">
         <div class="modal-box">
           <div class="modal-label">viewBox</div>
@@ -389,12 +398,55 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button class="primary" id="btn-copy">复制代码</button>
+        <button class="primary" id="btn-copy" data-i18n="copyCode">复制代码</button>
       </div>
     </div>
   </div>
 
+  <button class="lang-toggle" id="lang-toggle">EN</button>
+
   <script>
+    const i18n = {
+      zh: {
+        title: 'Polygon Points',
+        subtitle: '点击图片添加点位，围出选区，查看结果',
+        selectImage: '选择图片',
+        viewResult: '查看结果',
+        clear: '清空',
+        selectImageHint: '先选择图片吧',
+        hint: '长按点位可拖动移动 · 双击点位删除 · 至少3个点后可查看结果',
+        modalTitle: '选区数据',
+        copyCode: '复制代码',
+        copied: '已复制'
+      },
+      en: {
+        title: 'Polygon Points',
+        subtitle: 'Click image to add points, draw area, view result',
+        selectImage: 'Select Image',
+        viewResult: 'View Result',
+        clear: 'Clear',
+        selectImageHint: 'Select an image first',
+        hint: 'Long press to drag · Double-click to delete · At least 3 points to view result',
+        modalTitle: 'Area Data',
+        copyCode: 'Copy Code',
+        copied: 'Copied'
+      }
+    };
+
+    let currentLang = 'zh';
+
+    function updateI18n() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[currentLang][key]) {
+          el.firstChild.textContent = i18n[currentLang][key];
+        }
+      });
+      document.title = i18n[currentLang].title;
+      btnCopy.textContent = i18n[currentLang].copyCode;
+      langToggle.textContent = currentLang === 'zh' ? 'EN' : '中文';
+    }
+
     const workspace = document.getElementById('workspace');
     const imageInput = document.getElementById('image-input');
     const btnResult = document.getElementById('btn-result');
@@ -404,6 +456,7 @@
     const modalViewbox = document.getElementById('modal-viewbox');
     const modalPoints = document.getElementById('modal-points');
     const btnCopy = document.getElementById('btn-copy');
+    const langToggle = document.getElementById('lang-toggle');
 
     let img = null;
     let svg = null;
@@ -413,6 +466,11 @@
     let dragIndex = -1;
     let isDragging = false;
     let pressTimer = null;
+
+    langToggle.addEventListener('click', () => {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      updateI18n();
+    });
 
     imageInput.addEventListener('change', () => {
       const file = imageInput.files[0];
@@ -570,9 +628,9 @@
       const pointsStr = points.map(p => `${p.x},${p.y}`).join(',');
       const code = `const poly = new PolyClick('#container', '0 0 ${vw} ${vh}');\nconst shape = poly.add('${pointsStr}');`;
       navigator.clipboard.writeText(code);
-      btnCopy.textContent = '已复制';
+      btnCopy.textContent = i18n[currentLang].copied;
       setTimeout(() => {
-        btnCopy.textContent = '复制代码';
+        btnCopy.textContent = i18n[currentLang].copyCode;
       }, 1000);
     });
 
@@ -623,6 +681,8 @@
       btnResult.disabled = !hasImage || points.length < 3;
       btnClear.disabled = !hasImage || points.length === 0;
     }
+
+    updateI18n();
   </script>
 </body>
 

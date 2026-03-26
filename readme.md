@@ -4,20 +4,29 @@ A lightweight JavaScript library for creating clickable polygon areas on image b
 
 ## Install
 
-```html
-<script type="module">
-  import PolyClick from './poly.js';
-</script>
+```bash
+npm install poly-click
 ```
 
 ## Usage
 
 ```javascript
+import PolyClick from 'poly-click';
+
 const poly = new PolyClick('#container', '0 0 1920 1080');
 
 poly.add('100,100,200,100,200,200,100,200')
   .click(() => console.log('clicked!'))
   .on('mouseenter', () => console.log('hover!'));
+```
+
+### CDN
+
+```html
+<script src="https://unpkg.com/poly-click/dist/poly.umd.cjs"></script>
+<script>
+  const poly = new PolyClick('#container', '0 0 1920 1080');
+</script>
 ```
 
 ## API
@@ -31,7 +40,7 @@ Creates a new PolyClick instance.
 - `viewBox` - SVG viewBox attribute (e.g., `"0 0 1920 1080"`)
 
 **Requirements:**
-- Target element must have `position: relative`
+- Target element must have `position: relative`, `absolute`, or `fixed`
 - viewBox dimensions should match the image dimensions used for coordinate mapping
 
 **Instance Properties:**
