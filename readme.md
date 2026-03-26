@@ -89,6 +89,7 @@ poly.add('100,100,200,100')
 Direct access to the underlying `SVGPolygonElement` for custom manipulation.
 
 ```javascript
+const shape = poly.add('100,100,200,100');
 shape.polygon.setAttribute('fill', 'red');
 shape.polygon.style.opacity = '0.5';
 ```
@@ -109,7 +110,7 @@ shape.polygon.style.opacity = '0.5';
 
 ## Tool
 
-Use [get_polygon_points.html](get_polygon_points.html) to visually draw polygons and export coordinates.
+Use [get-polygon-points.html](demo/get-polygon-points.html) to visually draw polygons and export coordinates.
 
 1. Load an image
 2. Click to add points
